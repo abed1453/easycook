@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Cook</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9f5f2;
+        }
+
+        /* Header and home button styles */
+        .header {
+            position: sticky;
+            top: 0;
+            right: 0;
+            height: 70px;
+            width: 100%;
+            background-color: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            z-index: 100;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding-right: 20px;
+        }
+
+        .home-button {
+            width: 30px;
+            height: 30px;
+        }
+
+        .home-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+            margin-top: 0;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #fff5eb;
+            padding: 20px;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 120px;
+            height: auto;
+        }
+
+        .ingredient-list {
+            list-style: none;
+        }
+
+        .ingredient-list li {
+            padding: 8px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .ingredient-list li.divider {
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+
+        .ingredient-list li:before {
+            content: "□";
+            margin-right: 10px;
+            color: #ff6b6b;
+            font-size: 1.2em;
+        }
+
+        .ingredient-list li.active:before {
+            content: "■";
+            color: #ff6b6b;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            padding-top: 0;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .recipe-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .recipe-card:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .recipe-image {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .recipe-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .recipe-info {
+            padding: 15px;
+            position: relative;
+            min-height: 85px;
+        }
+
+        .recipe-title {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            padding-right: 80px;
+        }
+
+        .recipe-meta {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .stars {
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .time {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .play-button {
+            position: absolute;
+            left: 15px;
+            bottom: 15px;
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 12px solid #ff6b6b;
+            cursor: pointer;
+        }
+
+        #recipe-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 90%;
+            width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .recipe-details {
+            margin-top: 20px;
+        }
+
+        .recipe-difficulty {
+            margin-bottom: 20px;
+        }
+
+        .recipe-steps ol {
+            padding-left: 20px;
+        }
+
+        .recipe-steps li {
+            margin-bottom: 10px;
+        }
+
+        #recipe-modal button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #recipe-modal button:hover {
+            background-color: #ff5252;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            z-index: 1000;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+        }
+
+        .back-button:hover {
+            background-color: #555;
+        }
+
+        /* Ensure the button stays visible on mobile */
+        @media screen and (max-width: 768px) {
+            .back-button {
+                top: 10px;
+                left: 10px;
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with home button -->
+    <div class="header">
+        <a href="#" class="home-button">
+            <img src="home_icon.png" alt="Home">
+        </a>
+    </div>
+
+    <a href="../index.html" class="back-button">Go to Interface-1</a>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="easycook_icon.png" alt="Easy Cook Logo" width="120">
+            </div>
+            <h3>Ingredient List</h3>
+            <ul class="ingredient-list">
+                <li class="divider active">ALL</li>
+                <li>Apple</li>
+                <li>Banana</li>
+                <li>Carrot</li>
+                <li>Broccoli</li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="recipe-grid">
+                <!-- Original recipe cards -->
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="apple_pie.jpg" alt="Apple Pie">
+                    </div>
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">Apple Pie</h3>
+                        <div class="recipe-meta">
+                            <div class="stars">★★★★☆</div>
+                            <div class="time">45mins</div>
+                        </div>
+                        <span class="play-button"></span>
+                    </div>
+                </div>
+
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="bruschetta.jpg" alt="Bruschetta">
+                    </div>
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">Bruschetta</h3>
+                        <div class="recipe-meta">
+                            <div class="stars">★★☆☆☆</div>
+                            <div class="time">20mins</div>
+                        </div>
+                        <span class="play-button"></span>
+                    </div>
+                </div>
+
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="tomato_prawn_pasta.jpg" alt="Tomato Prawn Pasta">
+                    </div>
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">Tomato Prawn Pasta</h3>
+                        <div class="recipe-meta">
+                            <div class="stars">★★★☆☆</div>
+                            <div class="time">30mins</div>
+                        </div>
+                        <span class="play-button"></span>
+                    </div>
+                </div>
+
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="frittata.jpg" alt="Frittata">
+                    </div>
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">Frittata</h3>
+                        <div class="recipe-meta">
+                            <div class="stars">★★★☆☆</div>
+                            <div class="time">45mins</div>
+                        </div>
+                        <span class="play-button"></span>
+                    </div>
+                </div>
+
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="pho.jpg" alt="Pho">
+                    </div>
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">Pho</h3>
+                        <div class="recipe-meta">
+                            <div class="stars">★★★★★</div>
+                            <div class="time">45mins</div>
+                        </div>
+                        <span class="play-button"></span>
+                    </div>
+                </div>
+
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="apple_crumble.jpg" alt="Apple Crumble">
+                    </div>
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">Apple Crumble</h3>
+                        <div class="recipe-meta">
+                            <div class="stars">★★★☆☆</div>
+                            <div class="time">20mins</div>
+                        </div>
+                        <span class="play-button"></span>
+                    </div>
+                </div>
+
+                <!-- New recipe cards -->
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="recipe_banana_bread.jpg" alt="Banana Bread">
+                    </div>
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">Banana Bread</h3>
+                        <div class="recipe-meta">
+                            <div class="stars">★★☆☆☆</div>
+                            <div class="time">60mins</div>
+                        </div>
+                        <span class="play-button"></span>
+                    </div>
+                </div>
+
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="recipe_stir_fry.jpg" alt="Rainbow Stir-Fry">
+                    </div>
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">Rainbow Stir-Fry</h3>
+                        <div class="recipe-meta">
+                            <div class="stars">★★★☆☆</div>
+                            <div class="time">25mins</div>
+                        </div>
+                        <span class="play-button"></span>
+                    </div>
+                </div>
+
+                <div class="recipe-card">
+                    <div class="recipe-image">
+                        <img src="recipe_harvest_salad.jpg" alt="Harvest Salad">
+                    </div>
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">Harvest Salad</h3>
+                        <div class="recipe-meta">
+                            <div class="stars">★★☆☆☆</div>
+                            <div class="time">15mins</div>
+                        </div>
+                        <span class="play-button"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="overlay"></div>
+    <div id="recipe-modal"></div>
+
+    <script>
+        // Recipe details database with original and new recipes
+        const recipeDetails = {
+            "Apple Pie": {
+                ingredients: ["apple"],
+                difficulty: 4,
+                steps: [
+                    "Preheat oven to 375°F (190°C)",
+                    "Peel and slice 6 fresh apples into thin wedges",
+                    "Mix apple slices with 1/2 cup sugar, 1 tsp cinnamon, and 1/4 tsp nutmeg",
+                    "Prepare pie crust and line a 9-inch pie dish",
+                    "Pour apple mixture into the crust",
+                    "Cover with top crust, seal edges, and cut several slits for venting",
+                    "Brush with beaten egg and sprinkle with sugar",
+                    "Bake for 45 minutes until crust is golden and filling is bubbling"
+                ]
+            },
+            "Bruschetta": {
+                ingredients: ["broccoli"],
+                difficulty: 2,
+                steps: [
+                    "Slice a French baguette into 1-inch thick pieces",
+                    "Toast bread slices until golden brown",
+                    "Steam broccoli florets until tender-crisp",
+                    "Chop broccoli finely and mix with garlic and olive oil",
+                    "Top each bread slice with the broccoli mixture",
+                    "Drizzle with extra virgin olive oil",
+                    "Season with salt and pepper to taste"
+                ]
+            },
+            "Tomato Prawn Pasta": {
+                ingredients: ["carrot", "broccoli"],
+                difficulty: 3,
+                steps: [
+                    "Cook pasta in salted water according to package instructions",
+                    "Julienne carrots and cut broccoli into small florets",
+                    "Heat olive oil in a large pan and add minced garlic",
+                    "Add carrots and broccoli, sauté until tender-crisp",
+                    "Add prawns and cook until pink",
+                    "Pour in tomato sauce and add Italian seasonings",
+                    "Combine with pasta and serve hot"
+                ]
+            },
+            "Frittata": {
+                ingredients: ["carrot", "broccoli"],
+                difficulty: 3,
+                steps: [
+                    "Whisk 6 eggs with salt, pepper, and herbs",
+                    "Dice carrots and chop broccoli into small pieces",
+                    "Sauté carrots and broccoli until tender",
+                    "Pour beaten eggs over the vegetables",
+                    "Cook on medium heat until edges start to set",
+                    "Transfer to preheated broiler",
+                    "Broil for 3-5 minutes until top is golden and set"
+                ]
+            },
+            "Pho": {
+                ingredients: ["carrot", "broccoli"],
+                difficulty: 5,
+                steps: [
+                    "Prepare rich beef broth with spices (star anise, cinnamon, cloves)",
+                    "Slice carrots thinly and cut broccoli into small florets",
+                    "Cook rice noodles according to package instructions",
+                    "Prepare garnishes (fresh herbs, bean sprouts, lime wedges)",
+                    "Blanch carrots and broccoli briefly",
+                    "Assemble bowls with noodles and vegetables",
+                    "Pour hot broth over and serve with condiments"
+                ]
+            },
+            "Apple Crumble": {
+                ingredients: ["apple", "banana"],
+                difficulty: 3,
+                steps: [
+                    "Preheat oven to 350°F (175°C)",
+                    "Peel and slice 3 apples and 2 bananas",
+                    "Mix fruits with sugar, cinnamon, and lemon juice",
+                    "Prepare crumble topping: mix flour, butter, and brown sugar",
+                    "Place fruit mixture in a baking dish",
+                    "Top evenly with crumble mixture",
+                    "Bake for 20-25 minutes until golden brown"
+                ]
+            },
+            "Banana Bread": {
+                ingredients: ["banana"],
+                difficulty: 2,
+                steps: [
+                    "Preheat oven to 350°F (175°C)",
+                    "Mash 3 ripe bananas in a large bowl",
+                    "Mix in melted butter, eggs, and vanilla",
+                    "Combine flour, sugar, baking soda, and salt",
+                    "Fold dry ingredients into banana mixture",
+                    "Pour into greased loaf pan",
+                    "Bake for 60 minutes until golden brown",
+                    "Cool before slicing"
+                ]
+            },
+            "Rainbow Stir-Fry": {
+                ingredients: ["carrot", "broccoli"],
+                difficulty: 3,
+                steps: [
+                    "Slice carrots into thin strips",
+                    "Cut broccoli into small florets",
+                    "Heat wok or large pan with oil",
+                    "Add minced garlic and ginger",
+                    "Stir-fry carrots for 2 minutes",
+                    "Add broccoli and cook for 3 minutes",
+                    "Add sauce mixture and toss to combine",
+                    "Serve hot over rice"
+                ]
+            },
+            "Harvest Salad": {
+                ingredients: ["apple", "broccoli"],
+                difficulty: 2,
+                steps: [
+                    "Blanch broccoli florets until tender-crisp",
+                    "Dice apple into small cubes",
+                    "Toast pecans and pumpkin seeds",
+                    "Make vinaigrette with olive oil and apple cider vinegar",
+                    "Combine broccoli and apple in a bowl",
+                    "Add toasted nuts and seeds",
+                    "Drizzle with vinaigrette",
+                    "Toss gently and serve"
+                ]
+            }
+        };
+
+        let selectedIngredients = new Set();
+
+        document.querySelectorAll('.ingredient-list li').forEach(item => {
+            item.addEventListener('click', function() {
+                const ingredient = this.textContent.toLowerCase();
+                
+                if (ingredient === 'all') {
+                    selectedIngredients.clear();
+                    document.querySelectorAll('.ingredient-list li').forEach(li => li.classList.remove('active'));
+                    this.classList.add('active');
+                    showAllRecipes();
+                } else {
+                    document.querySelector('.ingredient-list li.divider').classList.remove('active');
+                    
+                    if (this.classList.contains('active')) {
+                        this.classList.remove('active');
+                        selectedIngredients.delete(ingredient);
+                    } else {
+                        this.classList.add('active');
+                        selectedIngredients.add(ingredient);
+                    }
+                    
+                    if (selectedIngredients.size === 0) {
+                        document.querySelector('.ingredient-list li.divider').classList.add('active');
+                    }
+                }
+                filterRecipes();
+            });
+        });
+
+        function filterRecipes() {
+            const recipeCards = document.querySelectorAll('.recipe-card');
+            
+            recipeCards.forEach(card => {
+                const recipeName = card.querySelector('.recipe-title').textContent;
+                const recipeIngredients = recipeDetails[recipeName].ingredients;
+                
+                if (selectedIngredients.size === 0 || 
+                    [...selectedIngredients].every(ing => recipeIngredients.includes(ing))) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function showAllRecipes() {
+            document.querySelectorAll('.recipe-card').forEach(card => {
+                card.style.display = 'block';
+            });
+        }
+
+        document.querySelectorAll('.play-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); 
+                const recipeName = this.closest('.recipe-card').querySelector('.recipe-title').textContent;
+                const recipe = recipeDetails[recipeName];
+                const modal = document.getElementById('recipe-modal');
+                const overlay = document.getElementById('overlay');
+                
+                modal.innerHTML = `
+                    <h2>${recipeName}</h2>
+                    <div class="recipe-details">
+                        <div class="recipe-difficulty">
+                            <h3>Difficulty Level:</h3>
+                            <div class="stars">${'★'.repeat(recipe.difficulty)}${'☆'.repeat(5-recipe.difficulty)}</div>
+                        </div>
+                        <div class="recipe-steps">
+                            <h3>Steps:</h3>
+                            <ol>
+                                ${recipe.steps.map(step => `<li>${step}</li>`).join('')}
+                            </ol>
+                        </div>
+                        ${recipe.ingredients.length > 0 ? 
+                            `<div class="recipe-ingredients">
+                                <h3>Main Ingredients:</h3>
+                                <ul>
+                                    ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}
+                                </ul>
+                            </div>` : ''
+                        }
+                    </div>
+                    <button onclick="closeModal()">Close</button>
+                `;
+                
+                modal.style.display = 'block';
+                overlay.style.display = 'block';
+            });
+        });
+
+        function closeModal() {
+            document.getElementById('recipe-modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        document.getElementById('overlay').addEventListener('click', closeModal);
+
+
+
+    </script>
+    <p class="footer"> &copy 2025 Abed Al Rahman</p>  
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Cook - Video Edition</title>
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            z-index: 1000;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+        }
+
+        .back-button:hover {
+            background-color: #555;
+        }
+
+        /* Ensure the button stays visible on mobile */
+        @media screen and (max-width: 768px) {
+            .back-button {
+                top: 10px;
+                left: 10px;
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="./Interface-2/Interface-2.html" class="back-button">Go to Interface-2</a>
+    <div class="header">
+        <div class="logo-container">
+            <img src="easycook_icon.png" alt="Easy Cook Logo" class="logo">
+        </div>
+        
+        <div class="search-section">
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <div class="search-bar">
+                        <img src="search_icon.png" alt="Search" class="search-icon">
+                        <input type="text" placeholder="Search recipes..." id="searchInput">
+                        <img src="mic_icon.png" alt="Voice Search" class="mic-icon" title="Click to search by voice">
+                    </div>
+                    <button class="filter-button" id="filterBtn">
+                        <img src="filter_icon.png" alt="Filter" class="filter-icon">
+                        Filter
+                    </button>
+                </div>
+
+                <div class="filter-panel" id="filterPanel">
+                    <div class="filter-section">
+                        <h3>CLASSIFICATION</h3>
+                        <div class="filter-options">
+                            <div class="filter-option">
+                                <input type="checkbox" id="breakfast">
+                                <label for="breakfast">Breakfast</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="soups">
+                                <label for="soups">Soups</label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="mains">
+                                <label for="mains">Mains</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h3>DIFFICULTY</h3>
+                        <div class="difficulty-options">
+                            <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+                            <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+                            <button class="difficulty-btn" data-difficulty="advanced">Advanced</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h3>TOTAL TIME (minutes)</h3>
+                        <div class="time-options">
+                            <button class="time-btn" data-time="<15">&lt; 15</button>
+                            <button class="time-btn" data-time="15-30">15-30</button>
+                            <button class="time-btn" data-time=">30">&gt; 30</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="search-history-container">
+                <h3>Recent Searches</h3>
+                <div class="search-history-list" id="searchHistoryList"></div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content initially-hidden">
+        <section class="recipe-section" id="recipeSection">
+            <div class="recipe-scroll-container">
+                <div class="recipe-container" id="recipeContainer">
+                    <div class="recipe-card" data-category="breakfast">
+                        <div class="recipe-image">
+                            <img src="apple_pancakes.jpg" alt="Apple Cinnamon Pancakes">
+                        </div>
+                        <div class="recipe-info">
+                            <h3 class="recipe-title">Apple Cinnamon Pancakes</h3>
+                            <div class="recipe-meta">
+                                <div class="stars">★★☆☆☆</div>
+                                <div class="time">20mins</div>
+                            </div>
+                            <span class="play-button"></span>
+                        </div>
+                    </div>
+
+                    <div class="recipe-card" data-category="breakfast">
+                        <div class="recipe-image">
+                            <img src="banana_bread.jpg" alt="Banana Bread">
+                        </div>
+                        <div class="recipe-info">
+                            <h3 class="recipe-title">Banana Bread</h3>
+                            <div class="recipe-meta">
+                                <div class="stars">★★☆☆☆</div>
+                                <div class="time">60mins</div>
+                            </div>
+                            <span class="play-button"></span>
+                        </div>
+                    </div>
+
+                    <div class="recipe-card" data-category="soups">
+                        <div class="recipe-image">
+                            <img src="carrot_soup.jpg" alt="Carrot Ginger Soup">
+                        </div>
+                        <div class="recipe-info">
+                            <h3 class="recipe-title">Carrot Ginger Soup</h3>
+                            <div class="recipe-meta">
+                                <div class="stars">★★★☆☆</div>
+                                <div class="time">40mins</div>
+                            </div>
+                            <span class="play-button"></span>
+                        </div>
+                    </div>
+
+                    <div class="recipe-card" data-category="mains">
+                        <div class="recipe-image">
+                            <img src="broccoli_stirfry.jpg" alt="Broccoli Stir Fry">
+                        </div>
+                        <div class="recipe-info">
+                            <h3 class="recipe-title">Broccoli Stir Fry</h3>
+                            <div class="recipe-meta">
+                                <div class="stars">★★☆☆☆</div>
+                                <div class="time">25mins</div>
+                            </div>
+                            <span class="play-button"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="video-section" id="videoSection">
+            <div class="video-container" id="videoContainer">
+                <div class="video-card" data-category="education">
+                    <div class="video-thumbnail">
+                        <img src="video_cooking_basics.jpg" alt="Cooking Basics">
+                        <div class="video-duration">3:40</div>
+                    </div>
+                    <h3 class="video-title">Mastering Basic Cooking Techniques</h3>
+                </div>
+
+                <div class="video-card" data-category="education">
+                    <div class="video-thumbnail">
+                        <img src="video_seasonal_cooking.jpg" alt="Seasonal Cooking">
+                        <div class="video-duration">16:50</div>
+                    </div>
+                    <h3 class="video-title">Seasonal Ingredients: Cooking with Local Produce</h3>
+                </div>
+
+                <div class="video-card" data-category="tips">
+                    <div class="video-thumbnail">
+                        <img src="video_kitchen_tips.jpg" alt="Kitchen Tips">
+                        <div class="video-duration">5:39</div>
+                    </div>
+                    <h3 class="video-title">Kitchen Tips: From Amateur to Pro Chef</h3>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="overlay"></div>
+    <div id="recipe-modal"></div>
+    <div id="voice-feedback" class="voice-feedback">Listening...</div>
+
+    <script src="./script.js"></script>
+    <p class="footer"> &copy 2025 Abed Al Rahman</p>  
+</body>
+</html>
